@@ -15,12 +15,12 @@ function Section() {
           <p className="model">16-inch model</p>
           <h1>MacBook Pro</h1>
           <p className="product-discription">The best for the brightest</p>
-          <a className="mac-link" href="">
+          <a className="mac-link" href="#mac">
             Learn more Buy{" "}
           </a>
         </div>
         <div className="mac-figure">
-          <img src={laptop} />
+          <img src={laptop} alt="MacBook Pro" />
         </div>
       </main>
 
@@ -30,46 +30,46 @@ function Section() {
           Pro cameras. Pro display. Pro performance
         </p>
         <p className="iphone-price">from $25.95/mo. or $599 with trade-in.</p>
-        <a href="">Learn more Buy </a>
+        <a href="#iphone">Learn more Buy </a>
       </section>
 
       <section className="iphone11-wrapper">
         <p className="iphone11-model">iPhone 11</p>
         <p className="iphone11-price">From $16.62/mo. or $399 with trade‑in.</p>
-        <a href="">Learn more Buy </a>
+        <a href="#iphone">Learn more Buy </a>
       </section>
 
       <section className="forth-highlight-section">
         <div className="left-side-wrapper1">
-          <img src={watch} />
+          <img src={watch} alt="Apple Watch Series 5" />
           <p>
             With the new Always-On Retina display. <br />
-            You’ve never seen a watch like this.
+            You've never seen a watch like this.
           </p>
-          <a href="">Learn more Buy </a>
+          <a href="#watch">Learn more Buy </a>
         </div>
         <div className="right-side-wrapper1">
-          <img src={apple} />
+          <img src={apple} alt="Apple Card" />
           <p>
             Get 3% Daily Cash on purchases <br />
             from Apple using Apple Card.
           </p>
-          <a href="">Learn more Buy </a>
+          <a href="#card">Learn more Buy </a>
         </div>
       </section>
 
       <section className="fifth-highlight-section">
         <div className="left-side-wrapper2">
-          <img src={tv} />
-          <img className="servant-logo" src={servant} />
+          <img src={tv} alt="Apple TV+" />
+          <img className="servant-logo" src={servant} alt="Servant Logo" />
           <p>
-            <a href="">Watch the trailer</a> <a href=""></a>
+            <a href="#trailer">Watch the trailer</a>
           </p>
         </div>
         <div className="right-side-wrapper2">
           <p className="airpods-model">AirPods Pro</p>
-          <p>Magic like you’ve never heard.</p>
-          <a href="">earn more Buy </a>
+          <p>Magic like you've never heard.</p>
+          <a href="#airpods">Learn more Buy </a>
         </div>
       </section>
 
@@ -78,15 +78,15 @@ function Section() {
           <p>16-inch model</p>
           <p className="macbook-model">MacBook Pro</p>
           <p>The best for the brightest.</p>
-          <a href="">Learn more Buy </a>
+          <a href="#mac">Learn more Buy </a>
         </div>
         <div className="right-side-wrapper3">
-          <img src={ipad} />
+          <img src={ipad} alt="New iPad" />
           <p>
             Like a computer. Unlike any <br />
             computer.
           </p>
-          <a href="">Learn more Buy </a>
+          <a href="#ipad">Learn more Buy </a>
         </div>
       </section>
     </div>

@@ -5,10 +5,10 @@ function Iphone() {
   const [iphone, setIphone] = useState([]);
   const [error, setError] = useState("");
 
-  // Use environment variable for API URL
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-
   useEffect(() => {
+    // Use environment variable for API URL
+    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+    
     console.log("✅ Fetching from backend...");
 
     fetch(`${API_URL}/iphone`)

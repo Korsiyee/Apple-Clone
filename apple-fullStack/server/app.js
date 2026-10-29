@@ -1,37 +1,53 @@
 const mysql = require("mysql");
 const express = require("express");
 const bodyparser = require("body-parser");
-const cors = require("cors");   // ✅ ADD THIS
+const cors = require("cors");
+const path = require("path");
+require("dotenv").config();
 
 const app = express();
+let databaseReady = false;
 
-// ✅✅✅ ENABLE CORS (THIS FIXES YOUR ERROR)
 app.use(cors());
-
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.static(__dirname));
 
 const PORT = 3001;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
 
-
 // ✅ MySQL connection
 const mysqlConnection = mysql.createConnection({
-  host: "127.0.0.1",
-  user: "bonsa",
-  password: "ko728916",
-  database: "bonsa",
+  host: process.env.DB_HOST || "127.0.0.1",
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME || "bonsa",
   multipleStatements: true
 });
 
 // ✅ Connect
 mysqlConnection.connect(err => {
-  if (err) console.error("❌ MySQL Error:", err);
-  else console.log("✅ MySQL Connected");
+  if (err) {
+    databaseReady = false;
+    console.error("❌ MySQL Error: check DB_HOST, DB_USER, DB_PASSWORD, and DB_NAME");
+  } else {
+    databaseReady = true;
+    console.log("✅ MySQL Connected");
+  }
 });
 
+const requireDatabase = (req, res, next) => {
+  if (!databaseReady) {
+    return res.status(503).json({
+      error: "Database unavailable. Configure the MySQL environment variables and restart the server."
+    });
+  }
+
+  next();
+};
+
 // ✅ TABLE CREATION ROUTE
-app.get("/install", (req, res) => {
+app.get("/install", requireDatabase, (req, res) => {
   const products = `
     CREATE TABLE IF NOT EXISTS products (
       product_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -75,7 +91,7 @@ app.get("/install", (req, res) => {
 });
 
 
-app.get("/seed-iphone", (req, res) => {
+app.get("/seed-iphone", requireDatabase, (req, res) => {
   const productQuery = `
     INSERT INTO products (product_url, product_name)
     VALUES ('iphone', 'iPhone SE')
@@ -125,7 +141,7 @@ app.get("/seed-iphone", (req, res) => {
 
 
 
-app.get("/iphone", (req, res) => {
+app.get("/iphone", requireDatabase, (req, res) => {
   const query = `
     SELECT 
       products.product_name,
@@ -144,16 +160,14 @@ app.get("/iphone", (req, res) => {
   mysqlConnection.query(query, (err, results) => {
     if (err) {
       console.log("❌ FETCH ERROR:", err);
-      return res.status(500).json({ error: err });
+      return res.status(500).json({ error: "Unable to fetch iPhone products." });
     }
 
     res.json({ products: results });
   });
 });
 
-/*// ✅ INSERT IPHONE DATA INTO ALL TABLES
-app.post("/addiphone", (req, res) => {
-
+app.post("/addiphone", requireDatabase, (req, res) => {
   const {
     iphoneId,
     imgPath,
@@ -165,53 +179,60 @@ app.post("/addiphone", (req, res) => {
     fullDescription
   } = req.body;
 
-  // ✅ 1. Insert into PRODUCTS
   const insertProduct = `
     INSERT INTO products (product_url, product_name)
     VALUES (?, ?)
   `;
 
-  mysqlConnection.query(
-    insertProduct,
-    [iphoneId, iphoneTitle],
-    (err, result) => {
-      if (err) return res.send(err);
-
-      const product_id = result.insertId;
-
-      // ✅ 2. Insert into DESCRIPTION
-      const insertDesc = `
-        INSERT INTO productsDescription
-        (product_id, product_brief_description, product_description, product_img, product_link)
-        VALUES (?, ?, ?, ?, ?)
-      `;
-
-      mysqlConnection.query(
-        insertDesc,
-        [product_id, briefDescription, fullDescription, imgPath, iphoneLink],
-        err => {
-          if (err) return res.send(err);
-
-          // ✅ 3. Insert into PRICE
-          const insertPrice = `
-            INSERT INTO productsPrice
-            (product_id, starting_price, price_range)
-            VALUES (?, ?, ?)
-          `;
-
-          mysqlConnection.query(
-            insertPrice,
-            [product_id, startprice, priceRange],
-            err => {
-              if (err) return res.send(err);
-              res.send("✅ iPhone successfully inserted into all tables!");
-            }
-          );
-        }
-      );
+  mysqlConnection.query(insertProduct, [iphoneId, iphoneTitle], (err, result) => {
+    if (err) {
+      console.error("Insert product failed:", err);
+      return res.status(500).json({ error: "Unable to insert product." });
     }
-  );
-});*/
+
+    const product_id = result.insertId;
+
+    const insertDesc = `
+      INSERT INTO productsDescription
+      (product_id, product_brief_description, product_description, product_img, product_link)
+      VALUES (?, ?, ?, ?, ?)
+    `;
+
+    mysqlConnection.query(
+      insertDesc,
+      [product_id, briefDescription, fullDescription, imgPath, iphoneLink],
+      (err) => {
+        if (err) {
+          console.error("Insert description failed:", err);
+          return res.status(500).json({ error: "Unable to insert product details." });
+        }
+
+        const insertPrice = `
+          INSERT INTO productsPrice
+          (product_id, starting_price, price_range)
+          VALUES (?, ?, ?)
+        `;
+
+        mysqlConnection.query(
+          insertPrice,
+          [product_id, startprice, priceRange],
+          (err) => {
+            if (err) {
+              console.error("Insert price failed:", err);
+              return res.status(500).json({ error: "Unable to insert product price." });
+            }
+
+            res.json({ success: true, message: "✅ iPhone successfully inserted into all tables!" });
+          }
+        );
+      }
+    );
+  });
+});
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 
 
 

@@ -3,6 +3,7 @@ import "./Iphone.css";
 
 function Iphone() {
   const [iphone, setIphone] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     console.log("✅ Fetching from backend...");
@@ -10,6 +11,9 @@ function Iphone() {
     fetch("http://localhost:3001/iphone")
       .then((res) => {
         console.log("✅ Response Status:", res.status);
+        if (!res.ok) {
+          throw new Error(`Backend returned ${res.status}`);
+        }
         return res.json();
       })
       .then((data) => {
@@ -18,6 +22,7 @@ function Iphone() {
       })
       .catch((err) => {
         console.log("❌ FETCH FAILED:", err);
+        setError("The iPhone catalog is unavailable. Start MySQL and restart the backend.");
       });
   }, []);
 
@@ -26,10 +31,10 @@ function Iphone() {
       <h1 className="iphone-title">Iphones</h1>
       <p className="iphone-subtitle">The best for the brightest.</p>
 
-      {iphone.length === 0 && (
-        <p style={{ color: "red", fontSize: "20px" }}>
-          ❌ No data loaded from backend
-        </p>
+      {error && <p className="iphone-error">{error}</p>}
+
+      {!error && iphone.length === 0 && (
+        <p className="iphone-error">No iPhone products are available.</p>
       )}
 
       {Array.isArray(iphone) &&

@@ -1,0 +1,29 @@
+services:
+  # Backend API Service
+  - type: web
+    name: apple-clone-api
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd apple-fullStack/server && npm install
+    startCommand: cd apple-fullStack/server && npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DB_HOST
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        value: bonsa
+
+databases:
+  # PostgreSQL Database (Render's free tier)
+  - name: apple-clone-db
+    databaseName: bonsa
+    plan: free

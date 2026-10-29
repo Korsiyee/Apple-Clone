@@ -5,10 +5,13 @@ function Iphone() {
   const [iphone, setIphone] = useState([]);
   const [error, setError] = useState("");
 
+  // Use environment variable for API URL
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
   useEffect(() => {
     console.log("✅ Fetching from backend...");
 
-    fetch("http://localhost:3001/iphone")
+    fetch(`${API_URL}/iphone`)
       .then((res) => {
         console.log("✅ Response Status:", res.status);
         if (!res.ok) {
